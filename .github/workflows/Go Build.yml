@@ -25,12 +25,11 @@ jobs:
       -
         name: Get Data
         id: time
-        run: echo "::set-output name=dir::$(date +'%Y-%m-%d/%H:%M:%S')"
+        run: echo "dir=$(date +'%Y-%m-%d/%H:%M:%S')" >> $GITHUB_OUTPUT
       -
         name: Get commitId
         id: commitId
-        run:
-          echo "::set-output name=dir::$(git rev-parse HEAD)"
+        run: echo "dir=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       -
         name: Build with xgo
         uses: crazy-max/ghaction-xgo@v1
@@ -67,14 +66,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
 
       -
-        name: Get Data
+        name: Get Data 
         id: getDingData
         run: |
           set -ex
           # 输出仓库名
           REPOSITORY="${{GITHUB.REPOSITORY}}"
-          echo "::set-output name=REPOSITORY::${REPOSITORY#*/}"
-          
+          echo "REPOSITORY=${REPOSITORY#*/}" >> $GITHUB_OUTPUT
+
           # 获取用户仓库信息
           # RESPONSE="$(curl -sLm 10 https://api.github.com/repos/${{ GITHUB.REPOSITORY }})"
           # 建议填写自己的 TOKEN
@@ -82,16 +81,16 @@ jobs:
           
           # 获取 用户仓库 设置的 描述，如果为空，可能是没有使用 TOKEN
           DESCRIPTION="$(jq -r .description <(echo ${RESPONSE}))"
-          echo "::set-output name=DESCRIPTION::${DESCRIPTION}"
+          echo "DESCRIPTION=${DESCRIPTION}" >> $GITHUB_OUTPUT
 
           # 获取 用户仓库 设置的 URL, 如果没有就输出 Github 地址
           URL="$(jq -r .homepage <(echo ${RESPONSE}))"
           if [[ "${URL}" == "null" || "${URL}" == "" ]]; then
-            echo "::set-output name=URL::${{ GITHUB.SERVER_URL }}/${{ GITHUB.REPOSITORY }}"
+            echo "URL=${{ GITHUB.SERVER_URL }}/${{ GITHUB.REPOSITORY }}" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=URL::${URL}"
+            echo "URL=${URL}" >> $GITHUB_OUTPUT
           fi
-      -
+      - 
         name: Send dingding notify
         uses: zcong1993/actions-ding@master
         with:
